@@ -417,47 +417,61 @@ function verifier_supprimer_traces(nodeid) {
 	const select_traces3 = $("*:has(>metadata[semantictag*='select-trace'])",portfolioProjetPro);
 	const select_traces = select_traces1.add(select_traces2).add(select_traces3);
 	//------------------------
+	let deletable = true;
 	for (let j=0;j<select_traces.length;j++){
 		const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces[j]))).text();
-		if (select_trace_code==code) {
-			to_be_deleted = confirm("ATTENTION - Cette trace est utilisée dans le portfolio. Voulez-vous vraiment la supprimer?");
-			if (to_be_deleted) {
-				const all_to_be_deleted = confirm("ATTENTION - Voulez-vous supprimer toutes les références à cette trace ?");
-				if (all_to_be_deleted) {
-					for (let k=0;k<select_traces1.length;k++){
-						const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces1[k]))).text();
-						if (select_trace_code==code) {
-							const uuid = $(select_traces1[k]).attr("id");
-							UICom.structure.ui[uuid] = null;
-							$("#"+uuid,g_portfolio_current).remove();
-							UICom.DeleteNode(uuid);
-						}
-					}
-					for (let k=0;k<select_traces2.length;k++){
-						const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces2[k]))).text();
-						if (select_trace_code==code) {
-							const uuid = $(select_traces2[k]).attr("id");
-							UICom.structure.ui[uuid] = null;
-							$("#"+uuid,g_portfolio_current).remove();
-							UICom.DeleteNode(uuid);
-						}
-					}
-					for (let k=0;k<select_traces3.length;k++){
-						const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces3[k]))).text();
-						if (select_trace_code==code) {
-							const uuid = $(select_traces3[k]).attr("id");
-							UICom.structure.ui[uuid] = null;
-							$("#"+uuid,g_portfolio_current).remove();
-							UICom.DeleteNode(uuid);
-						}
-					}
-					UIFactory.Node.reloadUnit();
-				}
-				else
-					to_be_deleted = false;
-			}
+		if (select_trace_code==code && !($(select_traces[j]).attr('delete')=='Y')){
+			deletable = false;
 			break;
 		}
+	}
+	if (deletable) {
+		for (let j=0;j<select_traces.length;j++){
+			const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces[j]))).text();
+			const deletable = ($(select_traces[j].node).attr('delete')=='Y')? true:false;
+			if (select_trace_code==code) {
+				to_be_deleted = confirm("ATTENTION - Cette trace est utilisée dans le portfolio. Voulez-vous vraiment la supprimer?");
+				if (to_be_deleted) {
+					const all_to_be_deleted = confirm("ATTENTION - Voulez-vous supprimer toutes les références à cette trace ?");
+					if (all_to_be_deleted) {
+						for (let k=0;k<select_traces1.length;k++){
+							const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces1[k]))).text();
+							if (select_trace_code==code) {
+								const uuid = $(select_traces1[k]).attr("id");
+								UICom.structure.ui[uuid] = null;
+								$("#"+uuid,g_portfolio_current).remove();
+								UICom.DeleteNode(uuid);
+							}
+						}
+						for (let k=0;k<select_traces2.length;k++){
+							const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces2[k]))).text();
+							if (select_trace_code==code) {
+								const uuid = $(select_traces2[k]).attr("id");
+								UICom.structure.ui[uuid] = null;
+								$("#"+uuid,g_portfolio_current).remove();
+								UICom.DeleteNode(uuid);
+							}
+						}
+						for (let k=0;k<select_traces3.length;k++){
+							const select_trace_code = $($("code",$("asmResource[xsi_type!='context'][xsi_type!='nodeRes']",select_traces3[k]))).text();
+							if (select_trace_code==code) {
+								const uuid = $(select_traces3[k]).attr("id");
+								UICom.structure.ui[uuid] = null;
+								$("#"+uuid,g_portfolio_current).remove();
+								UICom.DeleteNode(uuid);
+							}
+						}
+						UIFactory.Node.reloadUnit();
+					}
+					else
+						to_be_deleted = false;
+				}
+				break;
+			}
+		}
+	} else {
+		to_be_deleted = false;
+		alert("Cette trace est utilisée dans un élement de porfolio déjà soumis.");
 	}
 	return to_be_deleted;
 }
